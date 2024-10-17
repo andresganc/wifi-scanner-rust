@@ -1,3 +1,3 @@
-# Wifi Scanner Rust - Web, Desktop, CLI
+# Wifi Scanner Rust - Desktop, CLI
 
-  -
+-
