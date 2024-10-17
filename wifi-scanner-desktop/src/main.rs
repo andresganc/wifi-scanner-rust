@@ -4,7 +4,10 @@ use dioxus::prelude::*;
 use dioxus_logger::tracing::{info, Level};
 
 // Wifi Scanner
+use std::cell::Cell;
 use wifiscanner::Wifi;
+
+extern crate wifiscanner;
 
 // Route
 #[derive(Clone, Routable, Debug, PartialEq)]
@@ -28,6 +31,9 @@ fn App() -> Element {
 
 // Main
 fn main() {
+    use wifiscanner;
+    println!("Wifi Scanner: {:?}", wifiscanner::scan());
+
     // Init logger
     dioxus_logger::init(Level::INFO).expect("failed to init logger");
     info!("starting app");
@@ -42,9 +48,29 @@ enum Status {
     Found(Vec<Wifi>),
 }
 
+struct StructAppProps {
+    sender: Cell<Option<UnboundedSender<Status>>>,
+    receiver: Cell<Option<UnboundedReceiver<Status>>>,
+}
+
+fn perform_scan() -> Status {
+    if let Ok(devices) = wifiscanner::scan() {
+        if devices.is_empty() {
+            Status::NoneFound
+        } else {
+            Status::Found(devices)
+        }
+    } else {
+        Status::NoneFound
+    }
+}
+
 #[component]
 fn WifiScanner() -> Element {
     let mut count = use_signal(|| 0);
+
+    use wifiscanner;
+    println!("{:?}", wifiscanner::scan());
 
     rsx! {
 
@@ -79,7 +105,13 @@ fn WifiScanner() -> Element {
                 }
 
                 tbody {
-
+                    {
+                        use wifiscanner;
+                        println!("{:?}", wifiscanner::scan());
+                    }
+                    // p {
+                    //     {wifiscanner::scan()}
+                    // }
                 }
             }
         }
